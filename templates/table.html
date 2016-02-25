@@ -1,0 +1,87 @@
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-lg-8">
+
+        <label for="Filter">Screen</label>
+        <select name="Filter">
+            <option value="1">Default</option>
+            <option value="1">Default</option>
+        </select>
+        <br/>
+        <a href="#" class="glyphicon glyphicon-triangle-top" id="screener" ng-click="toggle(this)">Open Quick Screener</a>
+
+        <form class="form-inline" id="filter-form">
+            <!-- Condition 1 -->
+            <div class="form-group">
+                <select name="Filter" ng-model="condition1Val">
+                    <option ng-repeat="condition in condition1" value="{{condition.value}}">{{condition.title}}</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <select name="Filter" ng-model="condition2Val" id="condition2Val">
+                    <option ng-repeat="condition in condition2" value="{{condition.value}}">{{condition.title}}</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="text" ng-model="condition3Val">
+            </div>
+            <div class="form-group">
+                <select name="Median">
+                    <option value="1">Median</option>
+                    <option value="1">Median</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input ng-model="matches" disabled value="">
+            </div>
+            <div class="form-group">
+                <input type="radio" value="">
+            </div>
+            <div class="form-group">
+                <a class="glyphicon glyphicon-remove" href="#" ></a>
+            </div>
+        </form>
+
+    </div>
+    <div class="col-md-2"></div>
+</div>
+
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-lg-8" >
+        <table class="table table-striped">
+            <thead>
+                <th>cik</th><th>Symbol</th><th>Name</th><th>Exchange</th>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in items | mainAppFilter:this">
+                    <td>{{item.cik}}</td>
+                    <td>{{item.symbol}}</td>
+                    <td>{{item.name}}</td>
+                    <td>{{item.exchange}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <nav>
+            <ul class="pagination">
+                <li>
+                    <a href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li><a href="#">1</a></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
+                <li><a href="#">4</a></li>
+                <li><a href="#">5</a></li>
+                <li>
+                    <a href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div class="col-md-2"></div>
+</div>

@@ -15,6 +15,10 @@ mainApp.config(['$routeProvider',
             when('/', {
                 templateUrl: 'templates/table.html',
                 controller: 'mainController'
+            }).
+            when('/page/:page', {
+                templateUrl: 'templates/table.html',
+                controller: 'mainController'
             })
     }]);
 

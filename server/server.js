@@ -2,7 +2,7 @@
 var mongoose = require('mongoose');
 var express = require('express');
 var app = express();
-app.use(express.static("/webhome/agenda"));
+app.use(express.static("/webhome/agenagit/agenda"));
 
 app.get('/api/companies', function(req, res) {
     var companies = require('./companies.json');

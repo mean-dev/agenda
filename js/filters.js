@@ -9,6 +9,9 @@ mainAppFilters.filter('mainAppFilter', function () {
     return function (input, scope) {
 
         var _input = Array();
+        var _ids = Array();
+
+        var onPage = 5;
 
         for(var i=0; i<input.length; i++) {
 
@@ -45,36 +48,68 @@ mainAppFilters.filter('mainAppFilter', function () {
                 }
             }
 
-
             if(typeof input[i][scope.condition1Val] == 'undefined') {
-                var val = findElement(scope.condition1Val,input[i]);
+                var key = scope.condition1Val.split(".");
+                var _items = input[i][key[0]];
+                for(var z=0; z<_items.length; z++) {
+                    var curVal = _items[z][key[1]];
 
-                console.log(val);
+                    if(typeof curVal == 'number') {
+                        $("#condition2Val").show();
+
+                        switch (scope.condition2Val) {
+                            case ">":
+                                if(curVal > scope.condition3Val ){
+                                    if (_ids.indexOf(input[i]._id) < 0) {
+                                        _ids.push(input[i]._id);
+                                        _input.push(input[i]);
+                                    }
+                                }
+                                break;
+                            case "<":
+                                if(curVal < scope.condition3Val ){
+                                    if (_ids.indexOf(input[i]._id) < 0) {
+                                        _ids.push(input[i]._id);
+                                        _input.push(input[i]);
+                                    }
+                                }
+                                break;
+                            case "=":
+                                if(curVal == scope.condition3Val ){
+                                    if (_ids.indexOf(input[i]._id) < 0) {
+                                        _ids.push(input[i]._id);
+                                        _input.push(input[i]);
+                                    }
+                                }
+                                break;
+                            case "!":
+                                if(curVal != scope.condition3Val ){
+                                    if (_ids.indexOf(input[i]._id) < 0) {
+                                        _ids.push(input[i]._id);
+                                        _input.push(input[i]);
+                                    }
+                                }
+                                break;
+                            default:
+
+                        }
+                    }
+                }
             }
-
-
         }
 
+        scope._matches = _input.length;
+        //scope._matches = 12;
         scope.matches = _input.length+" matches";
+
+        if(scope._matches > onPage) {
+            var _pages = Array();
+            var pages = parseInt(scope._matches/onPage);
+            if(scope._matches%onPage > 0) pages++;
+            for(var i=1; i<=pages; i++)_pages.push(i);
+            scope.pages = _pages;
+        }
 
         return _input;
     };
 });
-
-
-
-function findElement(key, items){
-
-    console.log(key);
-    return;
-    if(typeof items[key] == 'undefined' && (typeof items == 'object' || typeof items == 'array' )) {
-
-        for (var k in items) {
-
-        }
-
-    }else{
-        return items[key];
-    }
-
-}

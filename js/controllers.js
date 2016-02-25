@@ -12,9 +12,9 @@ mainAppControllers.controller('mainController', ['$scope', 'company',
             {"value" : "exchange", "title" : "exchange"},
             {"value" : "avgDailyVolume", "title" : "avgDailyVolume"},
             {"value" : "marketCap", "title" : "marketCap"},
-            {"value" : "formtek.ros", "title" : "ros"},
-            {"value" : "roe", "title" : "roe"},
-            {"value" : "roc", "title" : "roc"},
+            {"value" : "formtenk.ros", "title" : "ros"},
+            {"value" : "formtenk.roe", "title" : "roe"},
+            {"value" : "formtenk.roc", "title" : "roc"},
             {"value" : "dividendspaid", "title" : "dividendspaid"}
         ];
 

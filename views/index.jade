@@ -17,32 +17,50 @@ html(lang='en', ng-app='mainApp')
         script(src="bower_components/angular-smart-table/dist/smart-table.js")
 
     body(ng-controller="MainController")
+        div(ng-model="companies" ng-init="companies=#{JSON.stringify(companies)}")
         div.row
             div.col-md-2
-            div.col-md-8
+            div.col-lg-8.text-center
                 label(for="Screen") Screen
                 select
                     option 1
                     option 2
-                br
-                a.glyphicon.glyphicon-triangle-top(href="#" id="screener" ng-click="toggle(this)") Open Quick Screener
-                form.form-inline(id="filter-form")
-                    div.form-group
-                        select(name="Filter" ng-model="select1" ng-change="updateField1()")
-                            each val, index in fields1
-                                option(value=index)= val
-                    div.form-group
-                        select(name="Filter")
-                            each val, index in fields2
-                                option(value=index)= val
-                    div.form-group
-                        input(type="text" value="" ng-model="search[select1]")
-                    div.form-group
             div.col-md-2
         div.row
             div.col-md-2
             div.col-md-8
-                div(ng-model="companies" ng-init="companies=#{JSON.stringify(companies)}")
+                a.glyphicon-triangle-bottom.glyphicon(href="#" id="screener" ng-click="toggle(this)") Open Quick Screener
+                input(ng-model="searchkey" type="hidden")
+                input(ng-model="search[searchkey]" type="hidden")
+                form.form-inline(id="filter-form")
+                    fieldset
+                        div.form-group
+                            button.btn.btn-primary.btn-sm(data-target="#newRuleConfirm" data-toggle="modal") Add new rule
+                    fieldset(ng-repeat="rule in filter")
+                        div.form-group
+                            select(ng-model="filter[rule.index]['field1']['value']" ng-change="filterChanged(rule.index, 'field1')")
+                                each val, index in fields1
+                                    option(value=index)= val
+                        div.form-group
+                            select(ng-model="filter[rule.index]['field2']['value']" ng-change="filterChanged(rule.index, 'field2')" id="fields2")
+                                each val, index in fields2
+                                    option(value=index)= val
+                        div.form-group
+                            input(ng-model="filter[rule.index]['field3']['value']" type="text" ng-change="filterChanged(rule.index, 'field3')")
+                        div.form-group
+                            select(ng-model="filter[rule.index]['field4']['value']" ng-change="filterChanged(rule.index, 'field4')")
+                                each val, index in fields2
+                                    option(value=index)= val
+                        div.form-group
+                            span.matches Matches:
+                        div.form-group
+                            input(ng-model="filter[rule.index]['active']" type="radio" name="radio" ng-change="filterChanged(rule.index, 'radio')")
+                        div.form-group
+                            a.glyphicon.glyphicon-remove
+            div.col-md-2
+        div.row
+            div.col-md-2
+            div.col-md-8
                 table.table.table-striped(st-table="companies")
                     thead
                         tr
@@ -63,3 +81,17 @@ html(lang='en', ng-app='mainApp')
                         tr
                             td.text-center(st-pagination="" st-items-by-page="5" colspan="4")
             div.col-md-2
+            div.modal.fade(id="newRuleConfirm" tabindex="-1" role="dialog")
+                div.modal-dialog
+                    div.modal-content
+                        div.modal-header
+                            button.close(type="button" data-dismiss="modal" aria-label="Close")
+                                span(aria-hidden="true") &times;
+                            h4.modal-title Add new rule
+                        div.modal-body
+                            p
+                                label(for="ruleName") New rule name:
+                                input(type="text" name="ruleName" id="ruleName" ng-model="newRuleName")
+                        div.modal-footer
+                            button.btn.btn-default(type="button" data-dismiss="modal") Close
+                            button.btn.btn-primary(type="button" ng-click="addNewRule()") Save changes

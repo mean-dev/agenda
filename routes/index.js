@@ -60,8 +60,6 @@ exports.index = function(req, res) {
                 }
             });
 
-            console.log(_companies);
-
         }
 
         res.render('index', { companies: companies, fields1:fields1, fields2:fields2});

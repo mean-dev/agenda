@@ -1,0 +1,65 @@
+doctype html
+html(lang='en', ng-app='mainApp')
+    head
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1, user-scalable=no')
+        title Agenda
+        link(rel='stylesheet' href='/bower_components/bootstrap/dist/css/bootstrap.min.css')
+        link(rel='stylesheet' href='/custom.css')
+        script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js')
+        script(src='bower_components/bootstrap/dist/js/bootstrap.min.js')
+        script(src='bower_components/angular/angular.js')
+        script(src='bower_components/angular-animate/angular-animate.js')
+        script(src='bower_components/angular-route/angular-route.js')
+        script(src='bower_components/angular-resource/angular-resource.js')
+        script(src='js/app.js')
+        script(src='js/controllers.js')
+        script(src="bower_components/angular-smart-table/dist/smart-table.js")
+
+    body(ng-controller="MainController")
+        div.row
+            div.col-md-2
+            div.col-md-8
+                label(for="Screen") Screen
+                select
+                    option 1
+                    option 2
+                br
+                a.glyphicon.glyphicon-triangle-top(href="#" id="screener" ng-click="toggle(this)") Open Quick Screener
+                form.form-inline(id="filter-form")
+                    div.form-group
+                        select(name="Filter" ng-model="select1" ng-change="updateField1()")
+                            each val, index in fields1
+                                option(value=index)= val
+                    div.form-group
+                        select(name="Filter")
+                            each val, index in fields2
+                                option(value=index)= val
+                    div.form-group
+                        input(type="text" value="" ng-model="search[select1]")
+                    div.form-group
+            div.col-md-2
+        div.row
+            div.col-md-2
+            div.col-md-8
+                div(ng-model="companies" ng-init="companies=#{JSON.stringify(companies)}")
+                table.table.table-striped(st-table="companies")
+                    thead
+                        tr
+                            th(colspan=5)
+                                input.input-sm.form-control(st-search placeholder="search..." type="search")
+                        tr
+                            th cik
+                            th Symbol
+                            th Name
+                            th Exchange
+                    tbody
+                    tr(ng-repeat="company in companies | filter:search")
+                        td {{company.cik}}
+                        td {{company.symbol}}
+                        td {{company.name}}
+                        td {{company.exchange}}
+                    tfoot
+                        tr
+                            td.text-center(st-pagination="" st-items-by-page="5" colspan="4")
+            div.col-md-2

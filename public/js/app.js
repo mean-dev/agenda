@@ -5,7 +5,8 @@
 var mainApp = angular.module('mainApp', [
     'ngRoute',
     'MainController',
-    'smart-table'
+    'smart-table',
+    'ngCookies'
     //'mainAppFilters',
     //'mainAppServices'
 ]);

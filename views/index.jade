@@ -12,19 +12,20 @@ html(lang='en', ng-app='mainApp')
         script(src='bower_components/angular-animate/angular-animate.js')
         script(src='bower_components/angular-route/angular-route.js')
         script(src='bower_components/angular-resource/angular-resource.js')
+        script(src='/js/bower_components/angular-cookies/angular-cookies.js')
         script(src='js/app.js')
         script(src='js/controllers.js')
         script(src="bower_components/angular-smart-table/dist/smart-table.js")
 
     body(ng-controller="MainController")
         div(ng-model="companies" ng-init="companies=#{JSON.stringify(companies)}")
+        div(ng-model="totalcount" ng-init="totalcount=#{JSON.stringify(companies)}.length")
         div.row
             div.col-md-2
             div.col-lg-8.text-center
                 label(for="Screen") Screen
-                select
-                    option 1
-                    option 2
+                    select.form-control(ng-model="curscreen" ng-change="switchScreen()")
+                        option(ng-repeat="screen in _screens") {{screen}}
             div.col-md-2
         div.row
             div.col-md-2
@@ -35,28 +36,38 @@ html(lang='en', ng-app='mainApp')
                 form.form-inline(id="filter-form")
                     fieldset
                         div.form-group
-                            button.btn.btn-primary.btn-sm(data-target="#newRuleConfirm" data-toggle="modal") Add new rule
+                            button.btn.btn-primary.btn-sm(ng-click="addNewRule()") Add new rule
+                        div.form-group
+                            span &nbsp;&nbsp;&nbsp;&nbsp;Total: {{totalcount}}
                     fieldset(ng-repeat="rule in filter")
                         div.form-group
-                            select(ng-model="filter[rule.index]['field1']['value']" ng-change="filterChanged(rule.index, 'field1')")
+                            select.form-control(ng-model="filter[rule.index]['field1']['value']" ng-change="filterChanged(rule.index, 'field1')")
                                 each val, index in fields1
                                     option(value=index)= val
-                        div.form-group
-                            select(ng-model="filter[rule.index]['field2']['value']" ng-change="filterChanged(rule.index, 'field2')" id="fields2")
+                        div.form-group(ng-if="filter[rule.index]['field2']['hidden']")
+                            select.form-control(disabled="disabled" ng-model="filter[rule.index]['field2']['value']" ng-change="filterChanged(rule.index, 'field2')" id="{{rule.index}}_fields2")
+                                each val, index in fields2
+                                    option(value=index)= val
+                        div.form-group(ng-if="!filter[rule.index]['field2']['hidden']")
+                            select.form-control(ng-model="filter[rule.index]['field2']['value']" ng-change="filterChanged(rule.index, 'field2')" id="{{rule.index}}_fields2")
                                 each val, index in fields2
                                     option(value=index)= val
                         div.form-group
-                            input(ng-model="filter[rule.index]['field3']['value']" type="text" ng-change="filterChanged(rule.index, 'field3')")
+                            input.form-control(ng-model="filter[rule.index]['field3']['value']" type="text" ng-change="filterChanged(rule.index, 'field3')")
                         div.form-group
-                            select(ng-model="filter[rule.index]['field4']['value']" ng-change="filterChanged(rule.index, 'field4')")
+                            select.form-control(ng-model="filter[rule.index]['field4']['value']" ng-change="filterChanged(rule.index, 'field4')")
                                 each val, index in fields2
                                     option(value=index)= val
                         div.form-group
-                            span.matches Matches:
+                            span.matches Matches: {{filter[rule.index]['matches']}}
                         div.form-group
-                            input(ng-model="filter[rule.index]['active']" type="radio" name="radio" ng-change="filterChanged(rule.index, 'radio')")
+                            input(ng-if="activeFilter==rule.index" checked ng-model="activeFilter" type="radio" value="{{rule.index}}" name="filterindex" ng-change="switchfilter(rule.index)")
+                            input(ng-if="activeFilter!=rule.index" ng-model="activeFilter" type="radio" value="{{rule.index}}" name="filterindex" ng-change="switchfilter(rule.index)")
                         div.form-group
-                            a.glyphicon.glyphicon-remove
+                            a.glyphicon.glyphicon-remove(ng-click="removeRule(rule.index)")
+                    fieldset
+                        div.form-group
+                            button.btn.btn-primary.btn-sm(data-toggle="modal" data-target="#saveRooles") Save
             div.col-md-2
         div.row
             div.col-md-2
@@ -72,26 +83,27 @@ html(lang='en', ng-app='mainApp')
                             th Name
                             th Exchange
                     tbody
-                    tr(ng-repeat="company in companies | filter:search")
+                    tr(ng-repeat="company in (filtered = (companies|filter:search))")
                         td {{company.cik}}
                         td {{company.symbol}}
                         td {{company.name}}
                         td {{company.exchange}}
                     tfoot
                         tr
-                            td.text-center(st-pagination="" st-items-by-page="5" colspan="4")
+                            td(colspan=5)
+                                div(st-pagination="" st-items-by-page="5" st-template="/partials/pagination.custom.html")
             div.col-md-2
-            div.modal.fade(id="newRuleConfirm" tabindex="-1" role="dialog")
+            div.modal.fade(id="saveRooles" tabindex="-1" role="dialog")
                 div.modal-dialog
                     div.modal-content
                         div.modal-header
                             button.close(type="button" data-dismiss="modal" aria-label="Close")
                                 span(aria-hidden="true") &times;
-                            h4.modal-title Add new rule
+                            h4.modal-title Save rules
                         div.modal-body
                             p
-                                label(for="ruleName") New rule name:
+                                label(for="ruleName") Name: &nbsp;&nbsp;&nbsp;&nbsp;
                                 input(type="text" name="ruleName" id="ruleName" ng-model="newRuleName")
                         div.modal-footer
                             button.btn.btn-default(type="button" data-dismiss="modal") Close
-                            button.btn.btn-primary(type="button" ng-click="addNewRule()") Save changes
+                            button.btn.btn-primary(type="button" ng-click="saveRules()") Save changes

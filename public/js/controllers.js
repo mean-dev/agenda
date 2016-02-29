@@ -55,7 +55,7 @@ MainController.controller('MainController', ['$scope', '$cookies',
 
             $scope.switchScreen = function(){
                 $scope.filter = $scope.screens[$scope.curscreen];
-                console.log($scope.curscreen);
+                $scope.switchfilter(1);
             }
 
             $scope.toggle = function(obj) {
@@ -86,7 +86,8 @@ MainController.controller('MainController', ['$scope', '$cookies',
                     },
                     "field2":{
                         "active":false,
-                        "value":">"
+                        "value":">",
+                        "hidden":true
                     },
                     "field3":{
                         "value":""
@@ -154,7 +155,7 @@ MainController.controller('MainController', ['$scope', '$cookies',
                 if($scope.newRuleName) {
 
                     var filtername = $scope.newRuleName;
-                    var existedFilters = JSON.parse($cookies.get('filters'));
+                    var existedFilters = $cookies.get('filters')? JSON.parse($cookies.get('filters')) : {}
 
                     if(existedFilters) {
                         existedFilters[filtername] = $scope.filter;

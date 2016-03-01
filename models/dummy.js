@@ -1,36 +1,149 @@
-var mongoose = require('mongoose');
-var db;
-if (process.env.VCAP_SERVICES) {
-    var env = JSON.parse(process.env.VCAP_SERVICES);
-    db = mongoose.createConnection(env['mongodb-2.2'][0].credentials.url);
-} else {
-    db = mongoose.createConnection('localhost', 'agendaapp');
-}
 
-// Medians (Shema0)
-var MediansShema = require('./collections.js').MediansShema;
-var MediansModel = db.model('MediansShema', MediansShema);
+var db = require('./collections.js').db;
 
-// Companies (Shema1)
-var CompaniesShema = require('./collections.js').CompaniesShema;
-var CompaniesModel = db.model('CompaniesModel', CompaniesShema);
+// Companies
+var companiesModel = require('./collections.js').companiesModel;
 
-// Form10k (Shema2)
-var Form10kShema = require('./collections.js').Form10kShema;
-var Form10kModel = db.model('Form10kModel', Form10kShema);
+// Form10k
+var form10kModel = require('./collections.js').form10kModel;
 
-// add form 10k
-Form10kModel.create(
-
+var companies = [
     {
-        "_id": "56c3408de3c27b300a3dc8b0",
+        "cik": "0001467373",
+        "name": "ACCENTURE PLC",
+        "display_name": "ACN Accenture Plc",
+        "symbol": "ACN",
+        "entityid": 811083,
+        "exchange": "NYSE",
+        "sic_code": 7389,
+        "sic_description": "Business Services, Not Elsewhere Classified",
+        "created_at": "2015-04-24T00:45:11.559Z",
+        "updated_at": "2015-04-24T00:45:11.559Z",
+        "ask": 96.62,
+        "bid": 96.58,
+        "avgDailyVolume": 3116500,
+        "volume": 1797901,
+        "lastTradeDate": "2016-02-15T23:00:00.000Z",
+        "lastTradeTime": null,
+        "lastPrice": 96.63,
+        "marketCap": "60.68",
+        "dividendPayDate": "2015-11-12T23:00:00.000Z",
+        "spread": 0.04000000000000625
+    }, {
+        "cik": "0001070494",
+        "name": "ACADIA PHARMACEUTICALS INC",
+        "display_name": "ACAD Acadia Pharmaceuticals Inc",
+        "symbol": "ACAD",
+        "entityid": 81806,
+        "exchange": "Nasdaq Global Market",
+        "sic_code": 2834,
+        "sic_description": "Pharmaceutical Preparations",
+        "created_at": "2015-04-24T00:45:11.556Z",
+        "updated_at": "2015-04-24T00:45:11.556Z",
+        "ask": 18.5,
+        "bid": 18.46,
+        "avgDailyVolume": 1743770,
+        "volume": 1185658,
+        "lastTradeDate": "2016-02-15T23:00:00.000Z",
+        "lastTradeTime": null,
+        "lastPrice": 18.48,
+        "marketCap": "1.86",
+        "dividendPayDate": null,
+        "spread": 0.03999999999999915
+    }, {
+        "cik": "0000712034",
+        "name": "ACCO BRANDS CORP",
+        "display_name": "ACCO Acco Brands Corp",
+        "symbol": "ACCO",
+        "entityid": 582568,
+        "exchange": "NYSE",
+        "sic_code": 2780,
+        "sic_description": "Blankbooks, Looseleaf Binders, And Bookbinding",
+        "created_at": "2015-04-24T00:45:11.557Z",
+        "updated_at": "2015-04-24T00:45:11.557Z",
+        "ask": 6.87,
+        "bid": 6.86,
+        "avgDailyVolume": 613516,
+        "volume": 219852,
+        "lastTradeDate": "2016-02-15T23:00:00.000Z",
+        "lastTradeTime": null,
+        "lastPrice": 6.86,
+        "marketCap": "727.16",
+        "dividendPayDate": null,
+        "spread": 0.009999999999999787
+    }, {
+        "cik": "0000934549",
+        "name": "ACACIA RESEARCH CORP",
+        "display_name": "ACTG Acacia Research Corp",
+        "symbol": "ACTG",
+        "entityid": 1231,
+        "exchange": "Nasdaq Global Market",
+        "sic_code": 6794,
+        "sic_description": "Patent Owners and Lessors",
+        "created_at": "2015-04-24T00:45:11.567Z",
+        "updated_at": "2015-04-24T00:45:11.567Z",
+        "ask": 3.66,
+        "bid": 3.65,
+        "avgDailyVolume": 781590,
+        "volume": 155369,
+        "lastTradeDate": "2016-02-15T23:00:00.000Z",
+        "lastTradeTime": null,
+        "lastPrice": 3.655,
+        "marketCap": "185.44",
+        "dividendPayDate": "2015-11-29T23:00:00.000Z",
+        "spread": 0.010000000000000231
+    }, {
+        "cik": "0001138723",
+        "name": "ACCURAY INC",
+        "display_name": "ARAY Accuray Inc",
+        "symbol": "ARAY",
+        "entityid": 104630,
+        "exchange": "Nasdaq Global Market",
+        "sic_code": 3841,
+        "sic_description": "Surgical and Medical Instruments and Apparatus",
+        "created_at": "2015-04-24T00:45:11.615Z",
+        "updated_at": "2015-04-24T00:45:11.615Z",
+        "ask": 5.21,
+        "bid": 5.2,
+        "avgDailyVolume": 810442,
+        "volume": 178311,
+        "lastTradeDate": "2016-02-15T23:00:00.000Z",
+        "lastTradeTime": null,
+        "lastPrice": 5.205,
+        "marketCap": "420.78",
+        "dividendPayDate": null,
+        "spread": 0.009999999999999787
+    }, {
+        "cik": "0000353020",
+        "name": "AEGION CORP",
+        "display_name": "AEGN Aegion Corp",
+        "symbol": "AEGN",
+        "entityid": 1653,
+        "exchange": "Nasdaq Global Market",
+        "sic_code": 1623,
+        "sic_description": "Water, Sewer, Pipeline, and Communications and Power Line Constr",
+        "created_at": "2015-04-24T00:45:11.572Z",
+        "updated_at": "2015-04-24T00:45:11.572Z",
+        "ask": 18.1,
+        "bid": 18.05,
+        "avgDailyVolume": 212887,
+        "volume": 54837,
+        "lastTradeDate": "2016-02-15T23:00:00.000Z",
+        "lastTradeTime": null,
+        "lastPrice": 18.07,
+        "marketCap": "631.96",
+        "dividendPayDate": null,
+        "spread": 0.05000000000000071
+    }
+];
+var form10k = [
+    {
         "ros": 13.491938647976303,
         "roe": 51.31681854699073,
         "roa": 16.405040988369954,
         "roc": 44.006834368684046,
         "symbol": "ACN",
         "cik": "0001467373",
-        "company": "56c34079e3c27b300a3dc5d3",
         "name": "10-K",
         "period": "ann",
         "year": 2014,
@@ -103,16 +216,14 @@ Form10kModel.create(
         "treasurystock": "-9423202000",
         "created_at": "2015-04-24T01:00:10.346Z",
         "updated_at": "2015-04-24T01:00:10.346Z",
-        "__v": 0
-    }, {
-        "_id": "56c3408de3c27b300a3dc8b4",
+    },
+    {
         "ros": 13.505725057145538,
         "roe": 51.957061412502,
         "roa": 17.123963321849452,
         "roc": 44.79600725148452,
         "symbol": "ACN",
         "cik": "0001467373",
-        "company": "56c34079e3c27b300a3dc5d3",
         "name": "10-K",
         "period": "ttm",
         "year": 2014,
@@ -185,16 +296,14 @@ Form10kModel.create(
         "treasurystock": "-8850092000",
         "created_at": "2015-04-24T01:47:26.251Z",
         "updated_at": "2015-04-24T01:47:26.251Z",
-        "__v": 0
-    }, {
-        "_id": "56c3408de3c27b300a3dc8b5",
+    },
+    {
         "ros": 14.274657225856767,
         "roe": 66.16441399576549,
         "roa": 19.457333645025873,
         "roc": 49.83517800648951,
         "symbol": "ACN",
         "cik": "0001467373",
-        "company": "56c34079e3c27b300a3dc5d3",
         "name": "10-K",
         "period": "ann",
         "year": 2013,
@@ -267,16 +376,14 @@ Form10kModel.create(
         "treasurystock": "-7326079000",
         "created_at": "2015-04-24T01:00:10.346Z",
         "updated_at": "2015-04-24T01:00:10.346Z",
-        "__v": 0
-    }, {
-        "_id": "56c3408de3c27b300a3dc8b1",
+    },
+    {
         "ros": 13.001376688180882,
         "roe": 61.592205957162285,
         "roa": 15.322210698023422,
         "roc": 45.24839853159284,
         "symbol": "ACN",
         "cik": "0001467373",
-        "company": "56c34079e3c27b300a3dc5d3",
         "name": "10-K",
         "period": "ann",
         "year": 2012,
@@ -348,17 +455,15 @@ Form10kModel.create(
         "totalstockholdersequity": 4145833000,
         "treasurystock": "-5285625000",
         "created_at": "2015-04-24T01:00:10.346Z",
-        "updated_at": "2015-04-24T01:00:10.346Z",
-        "__v": 0
-    }, {
-        "_id": "56c3408de3c27b300a3dc8b2",
+        "updated_at": "2015-04-24T01:00:10.346Z"
+    },
+    {
         "ros": 13.491938647976303,
         "roe": 51.31681854699073,
         "roa": 16.405040988369954,
         "roc": 44.006834368684046,
         "symbol": "ACN",
         "cik": "0001467373",
-        "company": "56c34079e3c27b300a3dc5d3",
         "name": "10-K",
         "period": "ttm",
         "year": 2014,
@@ -431,16 +536,14 @@ Form10kModel.create(
         "treasurystock": "-9423202000",
         "created_at": "2015-04-24T01:47:26.251Z",
         "updated_at": "2015-04-24T01:47:26.251Z",
-        "__v": 0
-    }, {
-        "_id": "56c3408de3c27b300a3dc8b3",
+    },
+    {
         "ros": 13.491938647976303,
         "roe": 51.31681854699073,
         "roa": 16.405040988369954,
         "roc": 44.006834368684046,
         "symbol": "ACN",
         "cik": "0001467373",
-        "company": "56c34079e3c27b300a3dc5d3",
         "name": "10-K",
         "period": "ytd",
         "year": 2014,
@@ -512,17 +615,15 @@ Form10kModel.create(
         "totalstockholdersequity": 5732035000,
         "treasurystock": "-9423202000",
         "created_at": "2015-04-24T01:43:40.134Z",
-        "updated_at": "2015-04-24T01:43:40.134Z",
-        "__v": 0
-    }, {
-        "_id": "56c3408de3c27b300a3dc8b6",
+        "updated_at": "2015-04-24T01:43:40.134Z"
+    },
+    {
         "ros": 12.687704863913218,
         "roe": 58.71889075164909,
         "roa": 14.478438497003784,
         "roc": 44.351335943199935,
         "symbol": "ACN",
         "cik": "0001467373",
-        "company": "56c34079e3c27b300a3dc5d3",
         "name": "10-K",
         "period": "ann",
         "year": 2011,
@@ -594,165 +695,86 @@ Form10kModel.create(
         "totalstockholdersequity": 3878951000,
         "treasurystock": "-3577574000",
         "created_at": "2015-04-24T01:00:10.346Z",
-        "updated_at": "2015-04-24T01:00:10.346Z",
-        "__v": 0
+        "updated_at": "2015-04-24T01:00:10.346Z"
     }
+];
 
-);
+// create companies and form10k
+for(var i in companies) {
 
-// add new company
-CompaniesModel.create(
-    {
-        "_id": "56c34079e3c27b300a3dc5d3",
-        "cik": "0001467373",
-        "name": "ACCENTURE PLC",
-        "display_name": "ACN Accenture Plc",
-        "symbol": "ACN",
-        "entityid": 811083,
-        "exchange": "NYSE",
-        "sic_code": 7389,
-        "sic_description": "Business Services, Not Elsewhere Classified",
-        "created_at": "2015-04-24T00:45:11.559Z",
-        "updated_at": "2015-04-24T00:45:11.559Z",
-        "__v": 7,
-        "ask": 96.62,
-        "bid": 96.58,
-        "avgDailyVolume": 3116500,
-        "volume": 1797901,
-        "lastTradeDate": "2016-02-15T23:00:00.000Z",
-        "lastTradeTime": null,
-        "lastPrice": 96.63,
-        "marketCap": "60.68",
-        "dividendPayDate": "2015-11-12T23:00:00.000Z",
-        "spread": 0.04000000000000625,
-        "formtenk": ["56c3408de3c27b300a3dc8b0", "56c3408de3c27b300a3dc8b4", "56c3408de3c27b300a3dc8b5", "56c3408de3c27b300a3dc8b1", "56c3408de3c27b300a3dc8b2", "56c3408de3c27b300a3dc8b3", "56c3408de3c27b300a3dc8b6"]
-    }, {
-        "_id": "56c34079e3c27b300a3dc5ce",
-        "cik": "0001070494",
-        "name": "ACADIA PHARMACEUTICALS INC",
-        "display_name": "ACAD Acadia Pharmaceuticals Inc",
-        "symbol": "ACAD",
-        "entityid": 81806,
-        "exchange": "Nasdaq Global Market",
-        "sic_code": 2834,
-        "sic_description": "Pharmaceutical Preparations",
-        "created_at": "2015-04-24T00:45:11.556Z",
-        "updated_at": "2015-04-24T00:45:11.556Z",
-        "__v": 9,
-        "ask": 18.5,
-        "bid": 18.46,
-        "avgDailyVolume": 1743770,
-        "volume": 1185658,
-        "lastTradeDate": "2016-02-15T23:00:00.000Z",
-        "lastTradeTime": null,
-        "lastPrice": 18.48,
-        "marketCap": "1.86",
-        "dividendPayDate": null,
-        "spread": 0.03999999999999915,
-        "formtenk": ["56c3408ae3c27b300a3dc88c", "56c3408ae3c27b300a3dc88d", "56c3408ae3c27b300a3dc88e", "56c3408ae3c27b300a3dc88f", "56c3408ae3c27b300a3dc890", "56c3408ae3c27b300a3dc891", "56c3408be3c27b300a3dc892", "56c3408be3c27b300a3dc893", "56c3408be3c27b300a3dc894"]
-    }, {
-        "_id": "56c34079e3c27b300a3dc5d5",
-        "cik": "0000712034",
-        "name": "ACCO BRANDS CORP",
-        "display_name": "ACCO Acco Brands Corp",
-        "symbol": "ACCO",
-        "entityid": 582568,
-        "exchange": "NYSE",
-        "sic_code": 2780,
-        "sic_description": "Blankbooks, Looseleaf Binders, And Bookbinding",
-        "created_at": "2015-04-24T00:45:11.557Z",
-        "updated_at": "2015-04-24T00:45:11.557Z",
-        "__v": 9,
-        "ask": 6.87,
-        "bid": 6.86,
-        "avgDailyVolume": 613516,
-        "volume": 219852,
-        "lastTradeDate": "2016-02-15T23:00:00.000Z",
-        "lastTradeTime": null,
-        "lastPrice": 6.86,
-        "marketCap": "727.16",
-        "dividendPayDate": null,
-        "spread": 0.009999999999999787,
-        "formtenk": ["56c3408fe3c27b300a3dc8c0", "56c3408fe3c27b300a3dc8c1", "56c3408fe3c27b300a3dc8c2", "56c3408fe3c27b300a3dc8c3", "56c3408fe3c27b300a3dc8c4", "56c3408fe3c27b300a3dc8c5", "56c3408fe3c27b300a3dc8c6", "56c3408fe3c27b300a3dc8c7", "56c3408fe3c27b300a3dc8c8"]
-    }, {
-        "_id": "56c34079e3c27b300a3dc5cc",
-        "cik": "0000934549",
-        "name": "ACACIA RESEARCH CORP",
-        "display_name": "ACTG Acacia Research Corp",
-        "symbol": "ACTG",
-        "entityid": 1231,
-        "exchange": "Nasdaq Global Market",
-        "sic_code": 6794,
-        "sic_description": "Patent Owners and Lessors",
-        "created_at": "2015-04-24T00:45:11.567Z",
-        "updated_at": "2015-04-24T00:45:11.567Z",
-        "__v": 9,
-        "ask": 3.66,
-        "bid": 3.65,
-        "avgDailyVolume": 781590,
-        "volume": 155369,
-        "lastTradeDate": "2016-02-15T23:00:00.000Z",
-        "lastTradeTime": null,
-        "lastPrice": 3.655,
-        "marketCap": "185.44",
-        "dividendPayDate": "2015-11-29T23:00:00.000Z",
-        "spread": 0.010000000000000231,
-        "formtenk": ["56c3408ae3c27b300a3dc87a", "56c3408ae3c27b300a3dc87e", "56c3408ae3c27b300a3dc87f", "56c3408ae3c27b300a3dc87b", "56c3408ae3c27b300a3dc87c", "56c3408ae3c27b300a3dc87d", "56c3408ae3c27b300a3dc880", "56c3408ae3c27b300a3dc881", "56c3408ae3c27b300a3dc882"]
-    }, {
-        "_id": "56c34079e3c27b300a3dc5d6",
-        "cik": "0001138723",
-        "name": "ACCURAY INC",
-        "display_name": "ARAY Accuray Inc",
-        "symbol": "ARAY",
-        "entityid": 104630,
-        "exchange": "Nasdaq Global Market",
-        "sic_code": 3841,
-        "sic_description": "Surgical and Medical Instruments and Apparatus",
-        "created_at": "2015-04-24T00:45:11.615Z",
-        "updated_at": "2015-04-24T00:45:11.615Z",
-        "__v": 7,
-        "ask": 5.21,
-        "bid": 5.2,
-        "avgDailyVolume": 810442,
-        "volume": 178311,
-        "lastTradeDate": "2016-02-15T23:00:00.000Z",
-        "lastTradeTime": null,
-        "lastPrice": 5.205,
-        "marketCap": "420.78",
-        "dividendPayDate": null,
-        "spread": 0.009999999999999787,
-        "formtenk": ["56c3408fe3c27b300a3dc8c9", "56c3408fe3c27b300a3dc8cd", "56c3408fe3c27b300a3dc8ce", "56c3408fe3c27b300a3dc8ca", "56c3408fe3c27b300a3dc8cb", "56c3408fe3c27b300a3dc8cc", "56c3408fe3c27b300a3dc8cf"]
-    }, {
-        "_id": "56c3407ae3c27b300a3dc60b",
-        "cik": "0000353020",
-        "name": "AEGION CORP",
-        "display_name": "AEGN Aegion Corp",
-        "symbol": "AEGN",
-        "entityid": 1653,
-        "exchange": "Nasdaq Global Market",
-        "sic_code": 1623,
-        "sic_description": "Water, Sewer, Pipeline, and Communications and Power Line Constr",
-        "created_at": "2015-04-24T00:45:11.572Z",
-        "updated_at": "2015-04-24T00:45:11.572Z",
-        "__v": 9,
-        "ask": 18.1,
-        "bid": 18.05,
-        "avgDailyVolume": 212887,
-        "volume": 54837,
-        "lastTradeDate": "2016-02-15T23:00:00.000Z",
-        "lastTradeTime": null,
-        "lastPrice": 18.07,
-        "marketCap": "631.96",
-        "dividendPayDate": null,
-        "spread": 0.05000000000000071,
-        "formtenk": ["56c340aae3c27b300a3dd638", "56c340aae3c27b300a3dd635", "56c340aae3c27b300a3dd636", "56c340aae3c27b300a3dd637", "56c340aae3c27b300a3dd639", "56c340aae3c27b300a3dd63a", "56c340aae3c27b300a3dd63b", "56c340aae3c27b300a3dd63c", "56c340aae3c27b300a3dd63d"]
+    var newCompany = new companiesModel(companies[i]);
+
+    // add form10k to company
+    if( companies[i]['cik'] == '0001467373') {
+        // ADD FORM 10K
+        for(var y in form10k) {
+            var _form10k = new form10kModel( form10k[y] );
+            _form10k.company = newCompany._id;
+            _form10k.save();
+            newCompany.formtenk.push(_form10k._id);
+        }
     }
-);
+    newCompany.save();
+}
 
-/*company1.save(function(err, doc) {
-    if(err || !doc) {
-        throw 'Error';
+companiesModel.find({})
+    .populate('formtenk')
+    .exec(function(error, items) {
+        console.log(items, null, "\t");
+    });
+
+
+
+
+
+
+
+// TESTING
+
+/*var Schema = mongoose.Schema;
+
+var PersonSchema = new Schema({
+    name    : String
+    , age     : Number
+    , stories : [{ type: Schema.ObjectId, ref: 'Story' }]
+});
+
+var StorySchema = new Schema({
+    _creator : { type: Schema.ObjectId, ref: 'Person' }
+    , title    : String
+    , fans     : [{ type: Schema.ObjectId, ref: 'Person' }]
+});
+
+var StoryModel  = db.model('StoryModel', StorySchema);
+var PersonModel = db.model('PersonModel', PersonSchema);
+
+console.log('Models created...');
+
+var aaron = new PersonModel({ name: 'Aaron', age: 100 });
+
+aaron.save(function (err) {
+
+    if(err) {
+        console.log(err);
     } else {
-        console.log("Inserted sucessfull..");
+
+        var story1 = new StoryModel({
+            title: "A man who cooked Nintendo"
+            , _creator: aaron._id
+        });
+
+        story1.save(function (err) {
+            if (err) console.log(err);
+        });
+
     }
-});*/
+})
+
+StoryModel
+    .find({})
+    .populate('_creator') // <-- only return the Persons name
+    .exec(function (err, story) {
+        if (err) {console.log(err);}
+        console.log(story);
+    })
+*/

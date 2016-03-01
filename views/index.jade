@@ -20,12 +20,13 @@ html(lang='en', ng-app='mainApp')
     body(ng-controller="MainController")
         div(ng-model="companies" ng-init="companies=#{JSON.stringify(companies)}")
         div(ng-model="totalcount" ng-init="totalcount=#{JSON.stringify(companies)}.length")
+        div(ng-model="screens" ng-init="screens=#{JSON.stringify(screens)}")
         div.row
             div.col-md-2
             div.col-lg-8.text-center
                 label(for="Screen") Screen
                     select.form-control(ng-model="curscreen" ng-change="switchScreen()")
-                        option(ng-repeat="screen in _screens") {{screen}}
+                        option(ng-repeat="screen in _screens" value="{{screen.id}}") {{screen.title}}
             div.col-md-2
         div.row
             div.col-md-2
@@ -83,7 +84,7 @@ html(lang='en', ng-app='mainApp')
                             th Name
                             th Exchange
                     tbody
-                    tr(ng-repeat="company in (filtered = (companies|filter:search))")
+                    tr(ng-repeat="company in (filtered = (companies|filter:search)) as results")
                         td {{company.cik}}
                         td {{company.symbol}}
                         td {{company.name}}

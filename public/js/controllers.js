@@ -4,17 +4,83 @@
 
 var MainController = angular.module('MainController', []);
 
-MainController.controller('MainController', ['$scope', '$cookies',
-        function($scope, $cookies) {
+MainController.controller('MainController', ['$scope', '$cookies', '$http',
+        function($scope, $cookies, $http) {
+
+            angular.element(document).ready(function () {
+                $scope.companiesOrigin = $scope.companies;
+
+                $scope._screens = [];
+
+                if($scope.screens.length > 0){
+                    // unpack filters
+                    for(var i in $scope.screens){
+                        $scope.screens[i]['filter'] = JSON.parse($scope.screens[i]['filter']);
+                    }
+                }else{
+                    $scope.screens = [];
+                }
+
+                var defaultScreen = {
+                    "id":"1",
+                    "title":"default",
+                    "filter":{
+                        "1" : {
+                            "matches":0,
+                            "isactive":1,
+                            "index":1,
+                            "field1":{
+                                "active":true,
+                                "value":"symbol"
+                            },
+                            "field2":{
+                                "active":false,
+                                "value":">",
+                                "hidden":true
+                            },
+                            "field3":{
+                                "value":""
+                            },
+                            "field4":{
+                                "value":""
+                            }
+                        }
+                    }
+                };
+
+                $scope.screens.push(defaultScreen);
+                $scope._screens = $scope.screens;
+
+                $scope.curscreen = "1";
+                $scope.filter = defaultScreen.filter;
+
+                $scope.activeFilter = 1;
+
+                console.log($scope._screens);
+
+                $scope.$watch('filtered', function() {
+
+                    if($scope.filtered){
+
+                        $scope.filter[$scope.activeFilter]['matches'] = $scope.filtered.length;
+                    }else {
+                        $scope.filter[$scope.activeFilter]['matches'] = $scope.totalcount;
+                    }
+
+                },true);
+
+
+
+            });
 
             var collection1Fields = ['symbol','exchange', 'avgDailyVolume', 'marketCap'];
 
             $scope.searchkey = 'symbol';
 
-            var _filters = ($cookies.get('filters') ? JSON.parse($cookies.get('filters')): false );
+            //var _filters = ($cookies.get('filters') ? JSON.parse($cookies.get('filters')): false );
 
             // add default screen
-            if(!_filters){
+            /*if(!_filters){
                 _filters = {};
             }
             _filters['default'] = {
@@ -52,6 +118,9 @@ MainController.controller('MainController', ['$scope', '$cookies',
 
             // set default filter in screen
             $scope.activeFilter = 1;
+            */
+
+            //$scope.activeFilter = 1;
 
             $scope.switchScreen = function(){
                 $scope.filter = $scope.screens[$scope.curscreen];
@@ -139,11 +208,68 @@ MainController.controller('MainController', ['$scope', '$cookies',
                         $scope.search = {};
                     }
 
+                    if(field == 'field2'){
+                        $scope.filterChanged(index,"field3");
+                    }
+
                     if(field == 'field3'){
-                        $scope.search = {};
-                        var searchKey=$scope.filter[index]['field1']['value'];
-                        var searchValue=$scope.filter[index][field]['value'];
-                        $scope.search[searchKey] = searchValue;
+
+                        if(!$scope.filter[index]['field2']['hidden']){
+
+                            if($scope.filter[index]['field3']['value'] != ''){
+                                var values = $scope.companiesOrigin;
+                                var log = [];
+                                angular.forEach(values, function(value, key) {
+                                    var collection2 = value['formtenk'];
+                                    var condition = $scope.filter[index]['field2']['value'];
+                                    var searched = $scope.filter[index]['field3']['value'];
+                                    if(collection2.length > 0){
+                                        var field = $scope.filter[index]['field1']['value'];
+                                        angular.forEach(collection2, function(_value, _key) {
+                                            if(condition == ">"){
+                                                if(_value[field]>searched){
+                                                    if (log.indexOf(value) == -1) {
+                                                        log.push(value);
+                                                    }
+                                                }
+                                            }
+                                            if(condition == "<"){
+                                                if(_value[field]<searched){
+                                                    if (log.indexOf(value) == -1) {
+                                                        log.push(value);
+                                                    }
+                                                }
+                                            }
+                                            if(condition == "="){
+                                                if(_value[field]==searched){
+                                                    if (log.indexOf(value) == -1) {
+                                                        log.push(value);
+                                                    }
+                                                }
+                                            }
+                                            if(condition == "!"){
+                                                if(_value[field]!=searched){
+                                                    if (log.indexOf(value) == -1) {
+                                                        log.push(value);
+                                                    }
+                                                }
+                                            }
+                                        });
+
+                                    }
+                                }, log);
+                                $scope.companies = log;
+                            }else{
+                                $scope.companies = $scope.companiesOrigin;
+                            }
+
+                        }else{
+                            $scope.search = {};
+                            var searchKey=$scope.filter[index]['field1']['value'];
+                            var searchValue=$scope.filter[index][field]['value'];
+                            $scope.search[searchKey] = searchValue;
+                        }
+
                     }
 
                 }
@@ -154,7 +280,7 @@ MainController.controller('MainController', ['$scope', '$cookies',
 
                 if($scope.newRuleName) {
 
-                    var filtername = $scope.newRuleName;
+                    /*var filtername = $scope.newRuleName;
                     var existedFilters = $cookies.get('filters')? JSON.parse($cookies.get('filters')) : {}
 
                     if(existedFilters) {
@@ -164,26 +290,30 @@ MainController.controller('MainController', ['$scope', '$cookies',
                         existedFilters[filtername] = $scope.filter
                     }
 
-                    $cookies.put('filters', JSON.stringify(existedFilters));
+                    $cookies.put('filters', JSON.stringify(existedFilters));*/
 
                     $('#saveRooles').modal('hide');
+
+                    //console.log(JSON.stringify($scope.filter));
+
+                    var data = {
+                        'title': $scope.newRuleName,
+                        'filter':$scope.filter
+                    };
+
+                    $http({
+                        method: 'POST',
+                        url: '/api/screen',
+                        data: data
+                    });
+
                 }
 
                 event.preventDefault();
                 return false;
             }
 
-            $scope.$watch('filtered', function() {
 
-                console.log($scope.activeFilter);
-                if($scope.filtered){
-
-                    $scope.filter[$scope.activeFilter]['matches'] = $scope.filtered.length;
-                }else {
-                    $scope.filter[$scope.activeFilter]['matches'] = $scope.totalcount;
-                }
-
-            },true);
 
             $scope.switchfilter = function(index){
                 $scope.activeFilter = index;

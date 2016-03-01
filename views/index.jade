@@ -55,9 +55,13 @@ html(lang='en', ng-app='mainApp')
                                     option(value=index)= val
                         div.form-group
                             input.form-control(ng-model="currentFilters[rule.index]['field3']['value']" type="text")
-                        div.form-group
+                        div.form-group(ng-if="!currentFilters[rule.index]['field4']['hidden']")
                             select.form-control(ng-model="currentFilters[rule.index]['field4']['value']")
-                                each val, index in fields2
+                                each val, index in fields3
+                                    option(value=index)= val
+                        div.form-group(ng-if="currentFilters[rule.index]['field4']['hidden']")
+                            select.form-control(disabled="disabled" ng-model="currentFilters[rule.index]['field4']['value']")
+                                each val, index in fields3
                                     option(value=index)= val
                         div.form-group
                             span.matches Matches: {{currentFilters[rule.index]['matches']}}

@@ -36,7 +36,7 @@ exports.index = function(req, res) {
 
                 // get all screens
                 screensModel.find({}).exec(function(err,screens){
-                    res.render('index', { companies: companies, screens:screens, fields1:fields1, fields2:fields2});
+                    res.render('index', { companies: companies, screens:screens, fields1:fields1, fields2:fields2, fields3:[]});
                 });
 
             });

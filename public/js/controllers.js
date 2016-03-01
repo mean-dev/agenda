@@ -189,6 +189,8 @@ MainController.controller('MainController', ['$scope', '$cookies', '$http',
 
                 curFilter['field2']['hidden'] = $.inArray(curFilter['field1']['value'],collection1Fields) > -1; // show/hide second field
 
+                curFilter['field4']['hidden'] = curFilter['field3']['value'].indexOf('x') == -1; // show/hide fourth field
+
                 // search in first collection
                 if(curFilter['field2']['hidden']){
 

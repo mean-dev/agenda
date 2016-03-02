@@ -160,22 +160,22 @@ MainController.controller('MainController', ['$scope', '$cookies', '$http',
             // remove rule from screen
             $scope.removeRule = function(index) {
 
-                var _filter = {};
-
-                delete $scope.filter[index];
-
-                var i = 1;
-                for(var filter_ in $scope.filter){
-                    $scope.filter[filter_]['index'] = i;
-                    _filter[i] = $scope.filter[filter_];
-                    i++;
+                var _filters = {};
+                var i=1;
+                for(var rule in $scope.currentFilters){
+                    if(index != $scope.currentFilters[rule]['index']) {
+                        var _f = $scope.currentFilters[rule];
+                        _f['index'] = i;
+                        _filters[i]=_f;
+                        i++;
+                    }
                 }
 
-                $scope.filter = _filter;
-                $scope.activeFilter = 1;
+                $scope.currentFilters = _filters;
 
                 event.preventDefault();
                 return false;
+
             }
 
             // filter changed

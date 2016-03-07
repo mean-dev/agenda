@@ -3,23 +3,20 @@ var db = require('../models/collections.js').db;
 
 // Companies (Shema1)
 var companiesModel = require('../models/collections.js').companiesModel;
-var companiesShemaVisibleFields = require('../models/collections.js').companiesShemaVisibleFields;
-
-// Form10k (Shema2)
-var form10kSchemaVisibleFields = require('../models/collections.js').form10kSchemaVisibleFields;
 
 // Screens
 var screensModel = require('../models/collections.js').screensModel;
 
 //require('../models/dummy.js');
 
-// GENERATE FILTERS
-var fields1 = {};
-fields1 = companiesShemaVisibleFields;
-for(var prop in form10kSchemaVisibleFields ){
-    fields1[prop] = form10kSchemaVisibleFields[prop];
+// GENERATE FILTERS. Conacte fields from company and form10k
+var fields1 = require('../models/companyCollection.js').companyFields;
+var _fields1 = require('../models/form10kCollection.js').form10kFields;
+for(var prop in _fields1 ){
+    fields1[prop] = _fields1[prop];
 }
 
+// STATIC second select
 var fields2 = {
     ">": "Greater than",
     "<": "Less than",
@@ -27,18 +24,19 @@ var fields2 = {
     "!": "Not equal to"
 };
 
+// Median select
+var fields3 = require('../models/marketCollection.js').marketFields;
+
 exports.index = function(req, res) {
 
         companiesModel
             .find({})
-            .populate('formtenk')
+            .populate(['formtenk','market'])
             .exec(function (error, companies) {
-
                 // get all screens
                 screensModel.find({}).exec(function(err,screens){
-                    res.render('index', { companies: companies, screens:screens, fields1:fields1, fields2:fields2, fields3:[]});
+                    res.render('index', { companies: companies, screens:screens, fields1:fields1, fields2:fields2, fields3:fields3});
                 });
-
             });
 
 };

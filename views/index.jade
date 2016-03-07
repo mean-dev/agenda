@@ -21,6 +21,9 @@ html(lang='en', ng-app='mainApp')
         div(ng-model="companies" ng-init="companies=#{JSON.stringify(companies)}")
         div(ng-model="totalcount" ng-init="totalcount=#{JSON.stringify(companies)}.length")
         div(ng-model="_screens" ng-init="_screens=#{JSON.stringify(screens)}")
+        div(ng-model="fields1" ng-init="fields1=#{JSON.stringify(fields1)}")
+        div(ng-model="fields2" ng-init="fields2=#{JSON.stringify(fields2)}")
+        div(ng-model="fields4" ng-init="fields4=#{JSON.stringify(fields3)}")
         div.row
             div.col-md-2
             div.col-lg-8.text-center
@@ -43,31 +46,19 @@ html(lang='en', ng-app='mainApp')
                     fieldset(ng-repeat="rule in currentFilters")
                         div.form-group
                             select.form-control(ng-model="currentFilters[rule.index]['field1']['value']")
-                                each val, index in fields1
-                                    option(value=index)= val
-                        div.form-group(ng-if="currentFilters[rule.index]['field2']['hidden']")
-                            select.form-control(disabled="disabled" ng-model="filter[rule.index]['field2']['value']" id="{{rule.index}}_fields2")
-                                each val, index in fields2
-                                    option(value=index)= val
-                        div.form-group(ng-if="!currentFilters[rule.index]['field2']['hidden']")
-                            select.form-control(ng-model="currentFilters[rule.index]['field2']['value']" id="{{rule.index}}_fields2")
-                                each val, index in fields2
-                                    option(value=index)= val
+                                option(ng-repeat="(value, title) in fields1" value="{{value}}") {{title}}
+                        div.form-group(ng-show="!currentFilters[rule.index]['field2']['hidden']")
+                            select.form-control(ng-model="currentFilters[rule.index]['field2']['value']")
+                                option(ng-repeat="(value, title) in fields2" value="{{value}}") {{title}}
                         div.form-group
                             input.form-control(ng-model="currentFilters[rule.index]['field3']['value']" type="text")
-                        div.form-group(ng-if="!currentFilters[rule.index]['field4']['hidden']")
+                        div.form-group(ng-show="!currentFilters[rule.index]['field4']['hidden']")
                             select.form-control(ng-model="currentFilters[rule.index]['field4']['value']")
-                                each val, index in fields3
-                                    option(value=index)= val
-                        div.form-group(ng-if="currentFilters[rule.index]['field4']['hidden']")
-                            select.form-control(disabled="disabled" ng-model="currentFilters[rule.index]['field4']['value']")
-                                each val, index in fields3
-                                    option(value=index)= val
+                                option(ng-repeat="(value, title) in fields4" value="{{value}}") {{title}}
                         div.form-group
                             span.matches Matches: {{currentFilters[rule.index]['matches']}}
                         div.form-group
-                            input(ng-if="currentFilter==rule.index" checked ng-model="currentFilter" type="radio" value="{{rule.index}}" name="activefilter" ng-change="filterSwitched(rule.index)")
-                            input(ng-if="currentFilter!=rule.index" ng-model="currentFilter" type="radio" value="{{rule.index}}" name="activefilter" ng-change="filterSwitched(rule.index)")
+                            input(checked="currentFilters[rule.index]['isactive']" ng-model="currentFilters[rule.index]['isactive']" type="checkbox" name="activefilter_[{{rule.index}}]" ng-change="filterSwitched(1)")
                         div.form-group
                             a.glyphicon.glyphicon-remove(ng-click="removeRule(rule.index)")
                     fieldset

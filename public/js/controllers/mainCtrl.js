@@ -4,8 +4,8 @@
 
 var MainController = angular.module('MainController', []);
 
-MainController.controller('MainController', ['$scope', '$cookies', '$http',
-        function($scope, $cookies, $http) {
+MainController.controller('MainController', ['$scope', '$cookies', '$http', '$filter',
+        function($scope, $cookies, $http, $filter) {
 
             // scope variables
             var collection1Fields = ['symbol','exchange', 'avgDailyVolume', 'marketCap'];
@@ -17,22 +17,22 @@ MainController.controller('MainController', ['$scope', '$cookies', '$http',
                 "filter":{
                     "1" : {
                         "matches":0,
-                        "isactive":1,
+                        "isactive":true,
                         "index":1,
                         "field1":{
-                            "active":true,
-                            "value":"symbol"
+                            "value":"symbol",
+                            "hidden":false
                         },
                         "field2":{
-                            "active":false,
                             "value":">",
-                            "hidden":true
+                            "hidden":false
                         },
                         "field3":{
-                            "value":""
+                            "value":"",
+                            "hidden":false
                         },
                         "field4":{
-                            "value":"",
+                            "value":"roc",
                             "hidden":true
                         }
                     }
@@ -74,11 +74,11 @@ MainController.controller('MainController', ['$scope', '$cookies', '$http',
             // updateing matches count
             $scope.updateMatchesCount = function(){
                 if($scope.filtered){
-                    $scope.currentFilters[$scope.currentFilter]['matches'] = $scope.filtered.length;
+                    //$scope.currentFilters[$scope.currentFilter]['matches'] = $scope.filtered.length;
                 }else {
-                    $scope.currentFilters[$scope.currentFilter]['matches'] = $scope.totalcount;
+                    //$scope.currentFilters[$scope.currentFilter]['matches'] = $scope.totalcount;
                 }
-            }
+            };
 
             // init screens
             $scope.initScreens = function(){
@@ -86,7 +86,7 @@ MainController.controller('MainController', ['$scope', '$cookies', '$http',
                 $scope._screens = $scope.unpackScreens($scope._screens); // unpack screens
                 $scope._screens.push($scope.defaultScreen); // add default screen
                 $scope.screens = $scope._screens;
-            }
+            };
 
             // unpack filters in screens
             $scope.unpackScreens = function(screens){
@@ -98,19 +98,18 @@ MainController.controller('MainController', ['$scope', '$cookies', '$http',
                     screens = [];
                 }
                 return screens;
-            }
+            };
 
             // switch screen
             $scope.switchScreen = function(screen){
                 if(screen){
                     for(var i in $scope.screens){
                         if($scope.screens[i]['_id']==screen){
-                            console.log($scope.screens[i]);
                             $scope.currentFilters = $scope.screens[i]['filter'];
                         }
                     }
                 }
-            }
+            };
 
             // show/hide filters
             $scope.toggle = function(obj) {
@@ -122,7 +121,7 @@ MainController.controller('MainController', ['$scope', '$cookies', '$http',
                 }
                 event.preventDefault();
                 return false;
-            }
+            };
 
             // add new rule to screen
             $scope.addFilter = function() {
@@ -133,29 +132,30 @@ MainController.controller('MainController', ['$scope', '$cookies', '$http',
                 }
 
                 $scope.currentFilters[i] = {
-                    "isactive":0,
+                    "isactive":false,
                     "index":i,
-                    "matches":$scope.companies.length,
+                    "matches":$scope.filtered.length,
                     "field1":{
-                        "active":true,
-                        "value":"symbol"
+                        "value":"symbol",
+                        "hidden":false
                     },
                     "field2":{
-                        "active":false,
                         "value":">",
-                        "hidden":true
+                        "hidden":false
                     },
                     "field3":{
-                        "value":""
+                        "value":"",
+                        "hidden":false
                     },
                     "field4":{
-                        "value":""
+                        "value":"roc",
+                        "hidden":true
                     }
                 };
 
                 event.preventDefault();
                 return false;
-            }
+            };
 
             // remove rule from screen
             $scope.removeRule = function(index) {
@@ -176,42 +176,99 @@ MainController.controller('MainController', ['$scope', '$cookies', '$http',
                 event.preventDefault();
                 return false;
 
-            }
+            };
 
             // filter changed
             $scope.filterChanged = function(filter) {
 
                 $scope.companies = $scope.companiesOrigin;
 
-                var curFilter = filter[$scope.currentFilter]; // current filter
+                var activeFilters = $scope.activeFilters();
 
-                $scope.searchkey = curFilter['field1']['value']; // search key
+                console.log(activeFilters);
 
-                curFilter['field2']['hidden'] = $.inArray(curFilter['field1']['value'],collection1Fields) > -1; // show/hide second field
+                var _companies = $scope.companies;
+                angular.forEach(activeFilters, function(filter, key) {
+                    _companies = $scope.filterCompaniesByFilter(_companies, filter);
+                }, _companies);
 
-                curFilter['field4']['hidden'] = curFilter['field3']['value'].indexOf('x') == -1; // show/hide fourth field
+                $scope.companies = _companies;
+                return false;
 
-                // search in first collection
-                if(curFilter['field2']['hidden']){
+            };
 
-                    $scope.search = {}; // search criteria
-                    $scope.search[$scope.searchkey] = '';
-                    $scope.search[$scope.searchkey] = curFilter['field3']['value'];
-                    $scope.currentFilters[$scope.currentFilter]['matches'] = $scope.filtered.length;
+            // filter companies by concrete filter
+            $scope.filterCompaniesByFilter = function(items, filter) {
 
-                    return true;
+                var searchKey = filter['field1']['value'];
+                var criteria = filter['field2']['value'];
+                var searchValue = filter['field3']['value'];
 
-                }else{
-                    // search in second collection
-                    $scope.companies = $scope.search2($scope.companiesOrigin,
-                        curFilter['field3']['value'],
-                        curFilter['field2']['value']);
+                var expression = {};
+                expression[searchKey] = searchValue;
 
-                    $scope.currentFilters[$scope.currentFilter]['matches'] = $scope.companies.length;
-
-                    return true;
+                if(searchKey.indexOf(".") > -1){
+                    searchKey = searchKey.split(".");
+                    expression = {};
+                    expression[searchKey[0]] = {};
+                    expression[searchKey[0]][searchKey[1]] = searchValue;
                 }
 
+                if(searchValue.indexOf("x")>-1) {
+                    filter['field4']['hidden'] = false;
+                }else{
+                    filter['field4']['hidden'] = true;
+                }
+
+                var res = $filter('filter')(items, expression, function(actual, expected){
+
+                    if(expected == "") return true;
+
+                    if(angular.isNumber(actual) ){
+
+                        expected = parseFloat(expected);
+
+                        if(criteria == ">" &&  actual > expected){
+                            return true;
+                        }
+                        if(criteria == "<" &&  actual < expected){
+                            return true;
+                        }
+                        if(criteria == "=" &&  actual == expected){
+                            return true;
+                        }
+                        if(criteria == "!" &&  actual != expected){
+                            return true;
+                        }
+
+                        return false;
+                    }
+
+                    if(angular.isString(actual) ){
+
+                        if(criteria == ">" &&  actual.indexOf(expected) === 0){
+                            return true;
+                        }
+                        if(criteria == "<" && actual.length>=expected.length && actual.indexOf(expected, actual.length-expected.length) == actual.length-expected.length){
+                            return true;
+                        }
+                        if(criteria == "=" && (actual == expected)){
+                            return true;
+                        }
+                        if(criteria == "!" && (actual != expected)){
+                            return true;
+                        }
+
+                        return false;
+                    }
+
+                    return false;
+
+                });
+
+                filter['matches'] = res.length;
+
+                return res;
             };
 
             // search companies in second collection
@@ -268,12 +325,20 @@ MainController.controller('MainController', ['$scope', '$cookies', '$http',
 
                 event.preventDefault();
                 return false;
-            }
+            };
 
             // switch filter in screen
             $scope.filterSwitched = function(index){
-                $scope.currentFilter = index;
                 $scope.filterChanged($scope.currentFilters);
+            };
+
+            // return active filters
+            $scope.activeFilters = function() {
+                var _filters = [];
+                for(var i in $scope.currentFilters){
+                    if($scope.currentFilters[i]['isactive']) _filters.push($scope.currentFilters[i]);
+                }
+                return _filters;
             }
 
         }]

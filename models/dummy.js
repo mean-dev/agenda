@@ -1,12 +1,35 @@
 
 var db = require('./collections.js').db;
 
+// Market
+var marketModel = require('./collections.js').marketModel;
+
 // Companies
 var companiesModel = require('./collections.js').companiesModel;
 
 // Form10k
 var form10kModel = require('./collections.js').form10kModel;
 
+// median value for all companies.
+var market = [
+    {
+        "created_at": "2015-04-24T00:45:11.559Z",
+        "updated_at": "2015-04-24T00:45:11.559Z",
+        type: "",
+        name: "Median value",
+        year: 2015,
+        quarter: 4,
+        currencycode: "USD",
+        roc: 45.17877469125985,
+        roa: 16.51386701814463,
+        roe: 56.05471825115014,
+        ros: 13.420754254146471,
+        kgv: 0,
+        kbv: 0,
+        kuv: 0,
+        kcfv: 0
+    }
+];
 var companies = [
     {
         "cik": "0001467373",
@@ -699,7 +722,9 @@ var form10k = [
     }
 ];
 
-// create companies and form10k
+var median = new marketModel(market[0]);
+median.save();
+
 for(var i in companies) {
 
     var newCompany = new companiesModel(companies[i]);
@@ -714,67 +739,12 @@ for(var i in companies) {
             newCompany.formtenk.push(_form10k._id);
         }
     }
+    newCompany.market = median;
     newCompany.save();
 }
 
 companiesModel.find({})
-    .populate('formtenk')
+    .populate(['formtenk','market'])
     .exec(function(error, items) {
         console.log(items, null, "\t");
     });
-
-
-
-
-
-
-
-// TESTING
-
-/*var Schema = mongoose.Schema;
-
-var PersonSchema = new Schema({
-    name    : String
-    , age     : Number
-    , stories : [{ type: Schema.ObjectId, ref: 'Story' }]
-});
-
-var StorySchema = new Schema({
-    _creator : { type: Schema.ObjectId, ref: 'Person' }
-    , title    : String
-    , fans     : [{ type: Schema.ObjectId, ref: 'Person' }]
-});
-
-var StoryModel  = db.model('StoryModel', StorySchema);
-var PersonModel = db.model('PersonModel', PersonSchema);
-
-console.log('Models created...');
-
-var aaron = new PersonModel({ name: 'Aaron', age: 100 });
-
-aaron.save(function (err) {
-
-    if(err) {
-        console.log(err);
-    } else {
-
-        var story1 = new StoryModel({
-            title: "A man who cooked Nintendo"
-            , _creator: aaron._id
-        });
-
-        story1.save(function (err) {
-            if (err) console.log(err);
-        });
-
-    }
-})
-
-StoryModel
-    .find({})
-    .populate('_creator') // <-- only return the Persons name
-    .exec(function (err, story) {
-        if (err) {console.log(err);}
-        console.log(story);
-    })
-*/
